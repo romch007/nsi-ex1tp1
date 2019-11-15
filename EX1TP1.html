@@ -1,50 +1,63 @@
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
-		<title>Sonde température</title>
-		<!-- <meta charset="UTF-8" /> -->
+		<title>Sonde tempÃ©rature</title>
+		<meta charset="UTF-8" />
 		<link rel="stylesheet" href="style.css" type="text/css" />
 	</head>
 	<body>
 		<div id="container" class="absolute-center">
 			<img src="logo.jpg" title="Arbre" alt="Arbre" height="200" width="200"/>
-			<h1>Grandeurs mesurées</h1>
+			<h1>Grandeurs mesurÃ©es</h1>
 			<table id="data">
 				<tr>
-					<td>Température</td>
-					<td>24.6</td>
-					<td>°C</td>
+					<td>TempÃ©rature</td>
+					<td id="temp">24.6</td>
+					<td>Â°C</td>
 					<td rowspan="2">
 						<img id="lampe" alt="Lampe" src="Lallumee.svg" height="42" width="42" />
 					</td>
 				</tr>
 				<tr>
-					<td>Humidité</td>
-					<td>67</td>
+					<td>HumiditÃ©</td>
+					<td id="hum">67</td>
 					<td>%</td>
 				</tr>
 			</table>
-			<p>Romain Chardiny | 1F | 2019 | Lycée Simone Veil Valbonne</p>
+			<p>Romain Chardiny | 1F | 2019 | LycÃ©e Simone Veil Valbonne</p>
 		</div>
 	</body>
+	<script src="axios.min.js"></script>
 	<script>
 		var lat = "43.6329";
 		var lon = "6.9991";
-		
-		var url = "https://www.prevision-meteo.ch/services/json/lat=" + lat + "lng=" + lon;
-		// TODO : trouver une bonne api
-		url = "http://www.infoclimat.fr/public-api/gfs/json?_ll=48.85341,2.3488&_auth=U0lUQ1YoACIDLlptAHYCK1Q8ATRaLAUiUy8HZAlsBHkHbF4%2FBmZWMFQ6BHkHKFZgVnsHZFliCDhXPAV9Xy1XNlM5VDhWPQBnA2xaPwAvAilUegFgWnoFIlMxB2kJYAR5B2VeMwZsVipUOQRiBzdWfFZkB2FZZAgvVysFY183VzNTM1Q4VjQAZwNrWjEANwIpVHgBZFoxBW5TZQdoCWEEMQdhXjwGZFZnVG0EMAcyVnxWbQdnWWIINlcwBWdfNlc3Uy9UL1ZMABEDcVp4AHICY1QhAXxaMAVjU2Q%3D&_c=6e05be84c7778c3fceb448dbe47e86b7é"
-		alert(url);
-		
-		var xhr = new XMLHttpRequest();
-		
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-			   alert(xhttp.responseText);
-			}
-		};
-		
-		xhttp.open("GET", url, true);
-		xhttp.send();
+		var temp, humidity;
+		var ville = "Valbonne";
+		var apikey = "05a4d7c7774239941998355bd71fd6d6";
+
+		var tempEl = document.getElementById('temp');
+		var humEl = document.getElementById('hum');
+		var lampe = document.getElementById('lampe');
+
+		function round2(n) {
+			return Math.round(n * 100) / 100;
+		}
+		function refresh() {
+			console.log("Sending request...")
+			axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${ville}&APPID=${apikey}`, {
+				appid: apikey,
+				q: ville
+			}).then(data => {
+				temp = data.data.main.temp - 273.15;
+				humidity = data.data.main.humidity;
+
+				tempEl.innerText = round2(temp);
+				humEl.innerText = round2(humidity);
+			}).catch(err => {
+				throw err;
+			})
+		}
+		lampe.addEventListener('click', refresh);
+		refresh()
 	</script>
 </html>
